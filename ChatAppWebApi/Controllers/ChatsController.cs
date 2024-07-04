@@ -14,6 +14,13 @@ namespace ChatAppWebApi.Controllers
 	public sealed class ChatsController(ApplicationDbContext context,IHubContext<ChatHub> hubContext) : ControllerBase
 	{
 		[HttpGet]
+		public async Task<IActionResult> GetUsers()
+		{
+			List<User> users = await context.Users.OrderBy(p=>p.Name).ToListAsync();	
+			return Ok(users);
+		}
+
+		[HttpGet]
 		public async Task<IActionResult> GetChats(Guid userId,Guid toUserId,CancellationToken cancellationToken)
 		{
 			List<Chat> chats = await context.Chats.Where
@@ -41,7 +48,7 @@ namespace ChatAppWebApi.Controllers
 
 			await hubContext.Clients.Client(connectionId).SendAsync("Messages", chat);
 
-			return Ok();
+			return Ok(chat);
 		}
 
 	}
